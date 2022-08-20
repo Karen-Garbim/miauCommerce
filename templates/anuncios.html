@@ -45,9 +45,7 @@
               </svg>Entrar
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{url_for("logout")}}"></a>
-            </li>
+
           </ul>
         </div>
       </nav>
@@ -102,34 +100,40 @@
           <i class="fas fa-check-circle"></i>
           <small>Mensagem de erro</small>
         </div>
-        <button type="submit">Enviar</button>
+        <div>
+          <button type="submit" class="botao1">Enviar</button>
+          <button type="reset" class="botao1">Limpar</button>
+        </div>
       </form>
     </div>
     <h4>Lista de {{titulo}}</h4>
     <div>
-      <thead>
-        <th>nome</th>
-        <th>Descrição</th>
-        <th>qtde</th>
-        <th>preço</th>
-        <th>categoria</th>
-
-      </thead>
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">nome</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Qtde</th>
+            <th scope="col">Preço</th>
+            <th scope="col">Categoria</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Deletar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for anuncio in anuncios %}
+            <tr>
+              <td>{{anuncio.nome}}</td>
+              <td>{{anuncio.desc}}</td>
+              <td>{{anuncio.qtde}}</td>
+              <td>{{anuncio.preco}}</td>
+              <td>{{anuncio.categ_id}}</td>
+              <td><a href={{ url_for("editaranuncio", id=anuncio.id ) }}>Editar?</a></td>
+              <td><a href={{ url_for( "deletaranuncio", id=anuncio.id ) }}>Deletar?</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
     </div>
-    <tbody>
-      {% for anuncio in anuncios %}
-        <tr>
-          <td>{{anuncio.nome}}</td>
-          <td>{{anuncio.desc}}</td>
-          <td>{{anuncio.qtde}}</td>
-          <td>{{anuncio.preco}}</td>
-          <td>{{anuncio.categ_id}}</td>
-          <td><a href={{ url_for("editaranuncio", id=usuario.id ) }}>Editar?</a></td>
-          <td><a href={{ url_for( "deletaranuncio", id=usuario.id ) }}>Deletar?</a></td>
-
-        </tr>
-      {% endfor %}
-    </tbody>
     <script src="../static/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../static/script.js"></script>
   </body>

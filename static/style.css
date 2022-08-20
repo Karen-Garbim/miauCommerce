@@ -1,7 +1,11 @@
-.nav-item,
 .nav-link {
   color: #000;
   margin-right: 25px;
+}
+.nav {
+  color: #000;
+  margin-right: 25px;
+  justify-content: center;
 }
 .nav :hover {
   color: #fff;
@@ -41,8 +45,11 @@ body {
   width: 400px;
   max-width: 100%;
   overflow: hidden;
-  margin-top: 30px;
+  margin-top: 90px;
   padding: 0px;
+  align-items: center;
+  margin: auto;
+  margin-top: 100px;
 }
 
 .header {
@@ -94,9 +101,10 @@ body {
   border: 2px solid #fc00ff;
   color: #fff;
   font-size: 14px;
-  width: 100%;
+  width: 100px;
   border-radius: 10px;
   padding: 10px;
+  margin-left: 14%;
 }
 
 /* Error and Success */
@@ -125,4 +133,36 @@ body {
 
 label {
   text-align: justify;
+}
+a {
+  color: #000;
+}
+a:hover {
+  color: #fff;
+}
+.botao1 {
+  justify-content: center;
+}
+.botao2 {
+  display: inline-block;
+  width: 85px;
+  margin-left: 90px;
+}
+
+.menu {
+  background-color: rgba(142, 39, 239, 0.548);
+  color: #000;
+  margin-right: 25px;
+  justify-content: center;
+  margin: auto;
+  display: flex;
+  height: 62px;
+}
+.lado1 {
+  margin: 18px;
+  font-size: 16px;
+}
+.lado2 {
+  margin: 15px;
+  font-size: 16px;
 }
