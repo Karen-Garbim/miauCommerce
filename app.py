@@ -1,14 +1,23 @@
-from flask import Flask, make_response, render_template, request, url_for, redirect
-from markupsafe import escape
+from ast import If
+from flask import Flask, make_response, render_template, request, url_for, redirect, flash
+#from flask_uploads import UploadSet, configure_uploads, IMAGES 
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (current_user, LoginManager, login_user, logout_user, login_required)
 import hashlib
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+
+app.config["UPLOADED_PHOTOS_DEST"] = "static/img"
+app.config["SECRET_KEY"] = os.urandom(24)
+#photos = UploadSet('photos', IMAGES)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root@localhost:3306/miauCommerce"
 #app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://karengarbim:6959Ck1n@@karengarbim.mysql.pythonanywhere-services.com:3306/karengarbim$miauCommerce"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+ 
 
 
 #INSTANCIAR OBJETO
@@ -88,6 +97,7 @@ class Anuncio(miauCommerce.Model):
         self.status_venda = status_venda
         self.status_oferta = status_oferta
 
+
 class Favoritos(miauCommerce.Model):
     __tablename__ = "favoritos"
     id = miauCommerce.Column("favoritos_id", miauCommerce.Integer, primary_key=True)
@@ -137,6 +147,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
+            flash("Dados Inválidos!")
             return redirect(url_for('login'))
 
     return render_template('login.html')
@@ -149,20 +160,25 @@ def logout():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    anuncio = Anuncio.query.filter(Anuncio.status == True)
+    return render_template("index.html", anuncios = anuncio )
+
+@app.route("/ofertas")
+def ofertas():
+    anuncio = Anuncio.query.filter(Anuncio.status_oferta == True)
+    if Anuncio.status == True and Anuncio.status_venda == False:
+        return render_template("ofertas.html", anuncios = anuncio )
+    return render_template("ofertas.html", anuncios = anuncio )
 
 @app.route("/cadastro/usuario")
 def usuario():
-    return render_template("usuario.html", usuarios = Usuario.query.all(), titulo="Cadastro de Usuário")
-
-@app.route("/cadastro/usuario")
-def registrar():
     return render_template("usuario.html", usuarios = Usuario.query.all(), titulo="Cadastro de Usuário")
 
 @app.route("/usuario/novo", methods=["POST"])
 def novousuario():
     hash = hashlib.sha512(str(request.form.get('senha')).encode("utf-8")).hexdigest()
     usuario = Usuario(request.form.get("nome"), request.form.get("email"), request.form.get("cpf"), hash, request.form.get("endereco"))
+    flash(f'Usuário cadastrado com sucesso!', 'success')
     miauCommerce.session.add(usuario)
     miauCommerce.session.commit()
     return redirect(url_for('usuario'))
@@ -173,7 +189,6 @@ def buscausuario(id):
     return usuario.nome
 
 @app.route("/usuario/editar/<int:id>", methods = ['GET', 'POST'])
-@login_required
 def editarusuario(id):
     usuario = Usuario.query.get(id)
     if request.method == 'POST':
@@ -188,7 +203,6 @@ def editarusuario(id):
     return render_template("editusuario.html", usuario = usuario, titulo=" Usuário")
 
 @app.route("/usuario/deletar/<int:id>")
-@login_required
 def deletarusuario(id):
     usuario = Usuario.query.get(id)
     miauCommerce.session.delete(usuario)
@@ -198,31 +212,40 @@ def deletarusuario(id):
 @app.route("/cadastro/anuncio")
 @login_required
 def anuncio():
-    return render_template("anuncios.html", anuncios = Anuncio.query.all(), titulo="Cadastro de Anúncio")
+    return render_template("anuncios.html", anuncios = Anuncio.query.all(), categorias = Categoria.query.all(), titulo="Cadastro de Anúncio")
 
 @app.route("/anuncio/novo", methods=["POST"])
-@login_required
 def novouanuncio():
-    anuncio = Anuncio(request.form.get("nome"), request.form.get("descricao"), request.form.get("qtde"), request.form.get("preco"), request.form.get("categ_id"), request.form.get("usuario_id"))
+    anuncio = Anuncio(True, request.form.get("nome"), request.form.get("descricao"), request.form.get("qtde"), 
+        request.form.get("preco"), request.form.get("categ_id"), request.form.get("usuario_id"), request.form.get("imagem"),
+        False, False)
     miauCommerce.session.add(anuncio)
     miauCommerce.session.commit()
     return redirect(url_for('anuncio'))
 
 @app.route("/anuncio/editar/<int:id>", methods = ['GET', 'POST'])
-@login_required
 def editaranuncio(id):
     anuncio = Anuncio.query.get(id)
     if request.method == 'POST':
+        if request.form.get('status') == None:
+            anuncio.status = False
+        else:
+            anuncio.status = True
         anuncio.nome = request.form.get('nome')
         anuncio.descricao = request.form.get('descricao')
         anuncio.qtde = request.form.get('qtde')
         anuncio.preco = request.form.get('preco')
         anuncio.categ_id = request.form.get('categ_id')
         anuncio.usuario_id = request.form.get('usuario_id')
+        anuncio.status_venda = False
+        if request.form.get('status_oferta') == None:
+            anuncio.status_oferta = False
+        else:
+            anuncio.status_oferta = True
         miauCommerce.session.add(anuncio)
         miauCommerce.session.commit()
         return redirect(url_for('anuncio'))
-    return render_template("editanuncio.html", anuncio = anuncio, titulo=" Anuncio")
+    return render_template("editanuncio.html", anuncio = anuncio, categorias = Categoria.query.all(), titulo=" Anuncio")
 
 @app.route("/anuncio/deletar/<int:id>")
 def deletaranuncio(id):
@@ -234,7 +257,7 @@ def deletaranuncio(id):
 @app.route("/config/categoria")
 @login_required
 def categoria():
-    return render_template("categoria.html", categorias = Categoria.query.all(), titulo="Categoria")
+    return render_template("categoria.html", categorias = Categoria.query.all(), categoria = categoria, titulo="Categoria")
 
 @app.route("/categoria/novo", methods=["POST"])
 @login_required
@@ -288,9 +311,6 @@ def compra():
 def favoritos():
     return render_template("favoritos.html")
 
-@app.route("/ofertas")
-def ofertas():
-    return render_template("ofertas.html")
 
 @app.route("/user/<username>")
 def username(username):
@@ -308,8 +328,8 @@ def username2(username=None):
     print(cokUsername)
     return render_template("user.html",username = username, cokUsername = cokUsername)
 
-if __name__ == 'app':
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
     miauCommerce.create_all()
 
 
