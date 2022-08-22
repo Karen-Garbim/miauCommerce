@@ -285,6 +285,11 @@ def deletarcategoria(id):
     miauCommerce.session.commit()
     return redirect(url_for('categoria'))
 
+@app.route("/relatorio/admin")
+@login_required
+def relAdmin():
+    return render_template("relatorios.html", usuarios = Usuario.query.all(), categorias = Categoria.query.all(), anuncios = Anuncio.query.all())
+
 @app.route("/relatorio/vendas")
 @login_required
 def relVendas():

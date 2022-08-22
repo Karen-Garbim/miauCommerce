@@ -29,10 +29,6 @@
         <div class="collapse navbar-collapse nav justify-content-center" id="navbarTogglerDemo03">
           <ul class="navbar-nav mr-auto mt-2 mt-lg-0 nav justify-content-center" style="list-style: none;">
             <li class="nav-item dropdown">
-              <a class="nav-link" href="{{url_for("index")}}">Todos Anúncios
-              </a>
-            </li>
-            <li class="nav-item dropdown">
               <a class="nav-link" href="{{url_for("anuncio")}}">Anúncios
               </a>
             </li>
@@ -47,7 +43,7 @@
               <a class="nav-link" href="{{url_for("ofertas")}}">Ofertas</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for("relVendas")}}">Relatórios
+              <a class="nav-link" href="{{url_for("relAdmin")}}">Relatórios
               </a>
             </li>
             <li class="nav-item">
@@ -124,38 +120,11 @@
           <small>Mensagem de erro</small>
         </div>
         <div>
-          <button type="submit" class="">Enviar</button>
-          <button type="reset" class="">Limpar</button>
+          <button type="submit" class="float-right btn btn-sm btn-success">Enviar</button>
+          <button type="reset" class="float-right btn btn-sm btn-warning">Limpar</button>
         </div>
       </form>
     </div>
-    <h4>Lista de {{titulo}}</h4>
-      <table class="table table-striped table-responsive table-bordered " >
-        <thead class="thead-default">
-          <tr>
-            <th scope="col">Nome</th>
-            <th scope="col">E-mail</th>
-            <th scope="col">CPF</th>
-            <th scope="col">Senha</th>
-            <th scope="col">Endereco</th>
-            <th scope="col">Editar</th>
-            <th scope="col">Deletar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for usuario in usuarios %}
-            <tr>
-              <td>{{usuario.nome}}</td>
-              <td>{{usuario.email}}</td>
-              <td>{{usuario.cpf}}</td>
-              <td>{{usuario.senha}}</td>
-              <td>{{usuario.endereco}}</td>
-              <td><a href={{ url_for("editarusuario", id=usuario.id ) }}>Editar?</a></td>
-              <td><a href={{ url_for( "deletarusuario", id=usuario.id ) }}>Deletar?</a></td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     <script
     src="https://kit.fontawesome.com/f9e19193d6.js" crossorigin="anonymous"></script>
     <script src="../static/bootstrap/js/bootstrap.bundle.min.js"></script>

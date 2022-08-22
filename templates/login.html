@@ -47,7 +47,7 @@
               <a class="nav-link" href="{{url_for("ofertas")}}">Ofertas</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for("relVendas")}}">Relatórios
+              <a class="nav-link" href="{{url_for("relAdmin")}}">Relatórios
               </a>
             </li>
             <li class="nav-item">
@@ -87,9 +87,9 @@
           <i class="fas fa-check-circle"></i>
           <small>Mensagem de erro</small>
         </div>
-        <div class="botao1">
-          <button type="submit">Enviar</button>
-          <a class="btn btn-primary" href="{{url_for("usuario")}}">Registre-se</a>
+        <div>
+          <button type="submit" class="float-right btn btn-sm btn-success">Enviar</button>
+          <a class="float-right btn btn btn-primary" href="{{url_for("usuario")}}">Registre-se</a>
         </div>
       </form>
       
