@@ -10,13 +10,10 @@
     <title>Miau-commerce </title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
       
       <div class="container-fluid ">
-        <a class="navbar-brand" href="#">Miau-commerce</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Alterna navegação">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <a class="navbar-brand" href="{{url_for('index')}}">Miau-commerce</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
           <ul class="navbar-nav nav-fill" style="list-style: none;">
             <li class="nav-item dropdown">
@@ -27,15 +24,18 @@
               <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                 <li><a class="dropdown-item" href="{{url_for('anuncio')}}">Criar Anúncios</a></li>
                 <li><a class="dropdown-item" href="{{url_for('meusAnuncios')}}">Meus Anúncios</a></li>
-                <li><a class="dropdown-item" href="#">Favoritos</a></li>
+                <li><a class="dropdown-item" href="{{url_for('favoritos')}}">Favoritos</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown" href="{{url_for('categoria')}}" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categorias</a>
+              <a class="nav-link dropdown" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categorias</a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                {% if current_user.tipoCliente == "admin" %}
+                <li><a class="dropdown-item" href="{{url_for('categoria')}}">Criar Categoria</a></li>
+                {% endif %}
+                {% for categoria in categorias %}
+                <li><a class="dropdown-item" href="{{url_for('get_categoria', id=categoria.id)}}">{{categoria.nome}}</a></li>
+                {% endfor %}
               </ul>
             </li>
             <li>
@@ -44,10 +44,12 @@
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('ofertas')}}">Ofertas</a>
             </li>
+            {% if current_user.tipoCliente == "admin" %}
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('relAdmin')}}">Relatórios
               </a>
             </li>
+            {% endif %}
           </ul>
         
           <div class="collapse navbar-collapse" id="navbarNavDropdown"></div>
@@ -59,8 +61,15 @@
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     <li><a class="dropdown-item" href="{{url_for('meusAnuncios')}}">Meus Anúncios</a></li>
-                    <li><a class="dropdown-item" href="{{url_for('pergunta')}}">Chat</a></li>
+                    <li><a class="dropdown-item" href="#">Chat</a></li>
                     <li><a class="dropdown-item" href="{{url_for('favoritos')}}">Favoritos</a></li>
+                    {% if current_user.tipoCliente == "cliente" %}
+                    <li><a class="dropdown-item" href="{{url_for('relCompras')}}">Compras</a></li>
+                    <li><a class="dropdown-item" href="{{url_for('relVendas')}}">Vendas</a></li>
+                    {% endif %}
+                    {% if current_user.tipoCliente == "admin" %}
+                    <li><a class="dropdown-item" href="{{url_for('relAdmin')}}">Relatórios</a></li>
+                    {% endif %}
                     <li><a class="dropdown-item" href="{{url_for('logout')}}">Sair</a></li>
                   </ul>
                 </li>
@@ -85,36 +94,80 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <div class="cards">
+      {% if anunciocategoria %}
+      {% for c in anunciocategoria %}
+        <div>
+          <div class="card">
+            <img src="{{url_for('static', filename='img/semfoto.jpg')}}" alt="{{c.nome}}"class="card-img-top" heigth="150">
+            <div class="card-body">
+              <h6 class="text-center">{{c.nome}}</h6>
+              <p class="text-center">{{ "Preço: {:.2f}".format(c.preco) }}</p>
+              
+            </div>
+            <div class="card-footer">
+              <a href="{{url_for('addFavoritos', id = c.id)}}" class="float-left btn btn-sm " id = "GFG_DOWN">
+                <font color=black>
+                {% for favorito in favoritos %}
+                {% if favorito.anuncio_id == c.id %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                </svg>
+                {% endif %}
+                {% endfor %}
+                </font>
+              </a>
+              <a href="{{url_for('detalhesAnuncio', id = c.id)}}" class="botao-detalhes btn btn-sm btn-warning">Detalhes</a>
+              <a href="{{url_for('comprar', id = c.id)}}" class="float-right btn btn-sm btn-success">Comprar</a>  
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      {% else %}
+
       {% for anuncio in anuncios %}
         <div>
           <div class="card">
             <img src="{{url_for('static', filename='img/semfoto.jpg')}}" alt="{{anuncio.nome}}"class="card-img-top" heigth="150">
             <div class="card-body">
-              <h4 class="text-center">{{anuncio.nome}}</h4>
-              <p class="text-center">Preço R${{anuncio.preco}}</p>
+              <h6 class="text-center">{{anuncio.nome}}</h6>
+              <p class="text-center">{{ "Preço: {:.2f}".format(anuncio.preco) }}</p>
             </div>
-            <div class="card-footer">
-
-              <!-- fazer um if do favorito, se tem na tabela fica vermelho, senão fica branco -->
-
-              <a href="{{url_for('addFavoritos', id = anuncio.id)}}" class="float-left btn btn-sm " id = "GFG_DOWN"><font color=black><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-              </svg></font></a>
+            <div class="card-footer">            
+              <a href="{{url_for('addFavoritos', id = anuncio.id)}}" class="float-left btn btn-sm " id = "GFG_DOWN">
+                <font color=black>
+                {% if favoritos %}
+                  {% for favorito in favoritos %}
+                    {% if favorito.anuncio_id == anuncio.id %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                      </svg>
+                    {% else %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                      <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                      </svg>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                  </svg>
+                {% endif %}
+                </font>
+              </a>
               <a href="{{url_for('detalhesAnuncio', id = anuncio.id)}}" class="botao-detalhes btn btn-sm btn-warning">Detalhes</a>
-              <a href="#" class="float-right btn btn-sm btn-success">Comprar</a>  
+              <a href="{{url_for('comprar', id = anuncio.id)}}" class="float-right btn btn-sm btn-success">Comprar</a>  
             </div>
           </div>
         </div>
 
       {% endfor %}
+      {% endif %}
   </div>
 {% endblock %}
     <script src="{{url_for('static', filename = 'jquery-3.3.1.slim.min.js')}}"></script>
     <script src="{{url_for('static', filename = 'popper.min.js')}}"></script>
     <script src="{{url_for('static', filename = 'bootstrap.min.js')}}"></script>
-    <script>
-      $('#GFG_DOWN').on('click', function() {
-          $('#GFG_DOWN').css('background', '#f00');
-      }); 
-  </script> 
 </html>

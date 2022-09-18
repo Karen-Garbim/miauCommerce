@@ -1,17 +1,17 @@
 import secrets
 from flask import Flask, make_response, render_template, request, url_for, redirect, flash
-from flask_uploads import UploadSet, configure_uploads, IMAGES
+#from flask_uploads import UploadSet, configure_uploads, IMAGES
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (current_user, LoginManager, login_user, logout_user, login_required)
 from werkzeug.utils import secure_filename
-from werkzeug.datastructures import  FileStorage
 from flask_wtf.file import FileField, FileRequired
 from wtforms import Form, StringField, PasswordField, BooleanField, validators
 import hashlib
 from flask import session
-import json
-import pdfkit
+#import json
+#import pdfkit
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -29,8 +29,8 @@ miauCommerce = SQLAlchemy(app)
 # para salvar imagens
 app.config["UPLOADED_PHOTOS_DEST"] = os.path.join(basedir,"static/img")
 app.config["SECRET_KEY"] = 'whatever'
-photos = UploadSet('photos', IMAGES)
-configure_uploads(app, photos)
+#photos = UploadSet('photos', IMAGES)
+#configure_uploads(app, photos)
 
 app.secret_key = "mi87542"
 login_manager = LoginManager()
@@ -55,13 +55,15 @@ class Usuario(miauCommerce.Model):
     cpf = miauCommerce.Column("usuario_cpf",miauCommerce.String(256))
     senha = miauCommerce.Column("usuario_senha",miauCommerce.String(256))
     endereco = miauCommerce.Column("usuario_endereco",miauCommerce.String(256))
+    tipoCliente = miauCommerce.Column("tipo_cliente", miauCommerce.String(15))
 
-    def __init__(self, nome, email, cpf, senha, endereco):
+    def __init__(self, nome, email, cpf, senha, endereco, tipo_cliente):
         self.nome = nome
         self.email = email
         self.cpf = cpf
         self.senha = senha
         self.endereco = endereco
+        self.tipoCliente = tipo_cliente
 
 #INTEGRAR A CLASSE COM O LOGIN MANAGER
     def is_authenticated(self):
@@ -93,7 +95,7 @@ class Anuncio(miauCommerce.Model):
     nome = miauCommerce.Column("anuncio_nome",miauCommerce.String(256))
     descricao = miauCommerce.Column("anuncio_descricao",miauCommerce.String(256))
     qtde = miauCommerce.Column("anuncio_qtde",miauCommerce.Integer)
-    preco = miauCommerce.Column("anuncio_preco",miauCommerce.Numeric(10,2))
+    preco = miauCommerce.Column("anuncio_preco",miauCommerce.Float(10,2))
     categ_id = miauCommerce.Column("categ_id",miauCommerce.Integer, miauCommerce.ForeignKey("categoria.categ_id"))
     usuario_id = miauCommerce.Column("usuario_id",miauCommerce.Integer, miauCommerce.ForeignKey("usuario.usuario_id"))
     comprador_id = miauCommerce.Column("comprador_id", miauCommerce.Integer, miauCommerce.ForeignKey("usuario.usuario_id", ))
@@ -143,8 +145,6 @@ class Pergunta(miauCommerce.Model):
         self.per_resposta = per_resposta
 
 
-
-
 @app.errorhandler(404)
 def paginanaoencontrada(error):
     return render_template('pagnaoencontrada.html')
@@ -182,17 +182,17 @@ def logout():
 
 @app.route("/")
 def index():
-    anuncio = Anuncio.query.filter(Anuncio.status == True)
+    anuncio = Anuncio.query.filter(Anuncio.status == True, Anuncio.status_venda == False)
+    categoria = Categoria.query.all()
     if current_user.is_authenticated:
-        favorito = Favoritos.query.filter_by(usuario_id = current_user.id)
-        return render_template("index.html", anuncios = anuncio, favoritos = favorito)
-    return render_template("index.html", anuncios = anuncio)
+        categoria = Categoria.query.all()
+        favorito = Favoritos.query.filter_by(usuario_id = current_user.id).all()
+        return render_template("index.html", anuncios = anuncio, favoritos = favorito, categoria = categoria)
+    return render_template("index.html", anuncios = anuncio, categoria = categoria)
 
 @app.route("/ofertas")
 def ofertas():
-    anuncio = Anuncio.query.filter(Anuncio.status_oferta == True)
-    if Anuncio.status == True and Anuncio.status_venda == False:
-        return render_template("ofertas.html", anuncios = anuncio )
+    anuncio = Anuncio.query.filter(Anuncio.status_oferta == True, Anuncio.status == True, Anuncio.status_venda == False)
     return render_template("ofertas.html", anuncios = anuncio )
 
 
@@ -205,7 +205,7 @@ def usuario():
 @app.route("/usuario/novo", methods=["POST"])
 def novousuario():
     hash = hashlib.sha512(str(request.form.get('senha')).encode("utf-8")).hexdigest()
-    usuario = Usuario(request.form.get("nome"), request.form.get("email"), request.form.get("cpf"), hash, request.form.get("endereco"))
+    usuario = Usuario(request.form.get("nome"), request.form.get("email"), request.form.get("cpf"), hash, request.form.get("endereco"), "cliente")
     flash(f'Usuário cadastrado com sucesso!', 'success')
     miauCommerce.session.add(usuario)
     miauCommerce.session.commit()
@@ -245,10 +245,8 @@ def anuncio():
 @app.route("/anuncio/novo", methods=["POST"])
 def novouanuncio():
     anuncio = Anuncio(True, request.form.get("nome"), request.form.get("descricao"), request.form.get("qtde"), 
-        request.form.get("preco"), request.form.get("categ_id"), request.form.get("usuario_id"), None, request.form.get("imagem"),
+        request.form.get("preco"), request.form.get("categ_id"), current_user.id, None, request.form.get("imagem"),
         False, False)
-    if request.method == 'POST':
-        photos.save(request.files.get('imagem'))
     miauCommerce.session.add(anuncio)
     miauCommerce.session.commit()
     return redirect(url_for('anuncio'))
@@ -266,7 +264,7 @@ def editaranuncio(id):
         anuncio.qtde = request.form.get('qtde')
         anuncio.preco = request.form.get('preco')
         anuncio.categ_id = request.form.get('categ_id')
-        anuncio.usuario_id = request.form.get('usuario_id')
+        anuncio.usuario_id = current_user.id
         anuncio.comprador_id = None
         anuncio.status_venda = False
         if request.form.get('status_oferta') == None:
@@ -293,36 +291,63 @@ def deletaranuncio(id):
 @app.route("/anuncio/meusAnuncios")
 @login_required
 def meusAnuncios():
-    return render_template("meusAnuncios.html", anuncios = Anuncio.query.all())
+    return render_template("meusAnuncios.html", anuncios = Anuncio.query.filter_by(usuario_id = current_user.id).all())
 
+@app.route("/anuncio/compras/<int:id>")
+@login_required
+def comprar(id):
+    anuncio = Anuncio.query.get(id)
+    anuncio.status_venda = True
+    anuncio.comprador_id = current_user.id
+    miauCommerce.session.add(anuncio)
+    miauCommerce.session.commit()
+    return redirect(url_for('relCompras'))
 
-def save_images(photo):
-    hash_photo = secrets.token_urlsafe(10)
-    _, file_extention = os.path.splitext(photo.filename)
-    photo_name = hash_photo
-
-@app.route("/anuncios/pergunta")
+@app.route("/anuncios/pergunta/<int:id>", methods = ["GET"])
 def pergunta(id):
-    anuncio = Anuncio.query.get_or_404(id)
-    return render_template("pergunta.html", anuncio = anuncio)
+    if current_user.is_authenticated:
+        anuncio = Anuncio.query.get_or_404(id)
+        pergunta = miauCommerce.session.query(Pergunta, Usuario)\
+            .add_columns(Usuario.nome, Pergunta.per_pergunta, Pergunta.per_resposta)\
+            .filter(Usuario.id == Pergunta.usuario_id, Pergunta.anuncio_id == id).all()
+        return render_template("pergunta.html", anuncio = anuncio, pergunta = pergunta)
+
+@app.route("/anuncios/gravarpergunta/", methods = ['POST'])
+def gravarPergunta():
+    anuncio = Anuncio.query.get(request.form.get('id_anuncio'))
+    if current_user.is_authenticated:    
+        if current_user.id == anuncio.usuario_id:
+            pergunta = Pergunta(current_user.id, request.form.get('id_anuncio'), request.form.get('per_pergunta'), None)
+            miauCommerce.session.add(pergunta)
+            miauCommerce.session.commit()
+        else:
+            pergunta = Pergunta(current_user.id, request.form.get('id_anuncio'), None, request.form.get('per_pergunta'))
+            miauCommerce.session.add(pergunta)
+            miauCommerce.session.commit()
+        return redirect(url_for('pergunta', id = anuncio.id))
+        
 
 @app.route("/anuncio/favoritos/<int:id>", methods=["POST", "GET"])
 @login_required
 def addFavoritos(id):
+    consulta = Favoritos.query.filter_by(usuario_id = current_user.id, anuncio_id = id).first()
     favorito = Favoritos(current_user.id, id)
-    flash(f'Anúncio adicionado aos favoritos!', 'success')
-    miauCommerce.session.add(favorito)
+    if consulta is None:
+        flash(f'Anúncio adicionado aos favoritos!', 'success')
+        miauCommerce.session.add(favorito)
+    else:
+        flash(f'Anúncio removido dos favoritos!', 'success')
+        miauCommerce.session.delete(consulta)
     miauCommerce.session.commit()
     return redirect(url_for('index'))
 
 @app.route("/anuncios/favoritos")
+@login_required
 def favoritos():
-    return render_template("favoritos.html")
-
-@app.route("/anuncios/compra/<int:id>", methods=["POST", "GET"])
-def compra(id):
-    anuncio = Anuncio.query.get(id)
-    return render_template("anunciosCompra.html")
+    anunciosFavoritos = miauCommerce.session.query(Anuncio, Favoritos)\
+        .add_columns(Anuncio.nome, Anuncio.preco, Anuncio.id)\
+        .filter(Anuncio.id == Favoritos.anuncio_id, Favoritos.usuario_id == current_user.id).all()
+    return render_template("favoritos.html", anuncios = anunciosFavoritos)
 
 @app.route("/config/categoria")
 @login_required
@@ -338,6 +363,7 @@ def novacategoria():
     return redirect(url_for('categoria'))
 
 @app.route("/categoria/editar/<int:id>", methods = ['GET', 'POST'])
+@login_required
 def editarcategoria(id):
     categoria = Categoria.query.get(id)
     if request.method == 'POST':
@@ -355,6 +381,11 @@ def deletarcategoria(id):
     miauCommerce.session.commit()
     return redirect(url_for('categoria'))
 
+@app.route("/categoria/<int:id>")
+def get_categoria(id):
+    AnuncioCategoria = Anuncio.query.filter_by(categ_id = id)
+    return render_template('index.html', anunciocategoria = AnuncioCategoria)
+
 @app.route("/relatorio/admin")
 @login_required
 def relAdmin():
@@ -363,33 +394,20 @@ def relAdmin():
 @app.route("/relatorio/vendas")
 @login_required
 def relVendas():
-    return render_template("relVendas.html")
+    anuncio = Anuncio.query.filter(Anuncio.status_venda == True, Anuncio.usuario_id == current_user.id)
+    return render_template("vendas.html", anuncios = anuncio )
+
 
 @app.route("/relatorio/compras")
 @login_required
 def relCompras():
-    return render_template("relCompras.html")
+    anuncio = Anuncio.query.filter(Anuncio.status_venda == True, Anuncio.comprador_id == current_user.id)
+    return render_template("compras.html", anuncios = anuncio)
 
 
-@app.route("/user/<username>")
-def username(username):
-# escape transformou a variavel username em texto
-    print("O que foi passado ", username)
-    cok = make_response("<h2>cookie criado</h2")
-    cok.set_cookie("username", username)
-    return cok
-
-@app.route("/user2/")
-@app.route("/user2/<username>")
-def username2(username=None):
-# render _template é a rota para a pagina html
-    cokUsername = request.cookies.get("username")
-    print(cokUsername)
-    return render_template("user.html",username = username, cokUsername = cokUsername)
+#if __name__ == 'app':
+#    miauCommerce.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
     miauCommerce.create_all()
-
-
-#servidor do heroku - publicação

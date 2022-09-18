@@ -12,18 +12,14 @@ body {
   background-color: #eee;
   padding: 20px;
   text-align: center;
+  margin: 0 -15px;
 }
 
-/*
-.navbar {
+
+.nav {
   background-color: rgba(142, 39, 239, 0.548);
 }
 
-.status {
-  display: inline;
-}
-
-*/
 .cards * {
   box-sizing: border-box;
 }
@@ -74,6 +70,7 @@ body {
 
 .relatórios{
   text-align: center;
+  margin-top: 50px;
 }
 
 .dropdown:hover>.dropdown-menu {
@@ -91,7 +88,6 @@ body {
 .navbar {
   background-color: rgba(142, 39, 239, 0.548);
   color: #000;
-  margin-right: 25px;
   justify-content: center;
 
   display: flex;
@@ -110,22 +106,28 @@ body {
   background-color: #fafafa;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  width: 400px;
+  width: 500px;
   max-width: 70%;
   overflow: hidden;
-  margin-top: 90px;
   padding: 0px;
   align-items: center;
   margin: auto;
-  margin-top: 100px;
+  margin-top: 30px;
+}
+.form-chat{
+  padding: 20px;
+  background-color: #fafafa;
+  overflow: hidden;
+  padding: 0px;
+  align-items: center;
+  margin: auto;
+  margin-top: 30px;
 }
 
 
 .form-group {
   margin-bottom: 10px;
-  padding-bottom: 20px;
   position: relative;
-  display: flex;
   margin-top: 25px;
   margin-left: 47px;
 }
@@ -135,7 +137,7 @@ body {
 .form-group label {
   display: inline-block;
   margin-bottom: 5px;
-  font-size: 18px;
+  font-size: 14px;
   
 }
 
@@ -147,7 +149,9 @@ body {
   font-size: 14px;
   width: 80%;
   padding: 10px;
+
 }
+
 
 
 .form button{
@@ -155,17 +159,20 @@ body {
   font-size: 14px;
   width: 100px;
   border-radius: 10px;
-  padding: 10px;
-  margin-left: 70px;
-  margin-top: 49px;
+  padding: 8px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  margin-left: 41px;
 }
 .form a{
   color: rgb(255, 255, 255);
   font-size: 14px;
   width: 100px;
   border-radius: 10px;
-  padding: 10px;
-  margin-left: 14%;
+  padding: 8px;
+  margin-top: 20px;
+  margin-bottom: 11px;
+  justify-content: center;
 }
 
 .form-control1 {
@@ -181,8 +188,26 @@ body {
 
 }
 
+.form-horizontal input {
+    margin-top: 20px;
+    justify-content: center;
+    border: 2px solid #f0f0f0;
+    display: inline-flex;
+    border-radius: 10px;
+    font-size: 14px;
+    width: 60%;
+    padding: 10px;
+  
+}
 label {
   text-align: justify;
+
+
+}
+
+.label-login {
+  text-align: justify;
+  margin-left: 82px;
 }
 a {
   color: #000;
@@ -192,11 +217,65 @@ a:hover {
 
 }
 
+.container{
+  border: 1px solid #ccced187
+}
+
 .container-sm{
 
-  padding-top: 80px;
+  padding-top: 60px;
+  width: 85%;
+  margin-inline: auto;
 }
 
 .relatórios{
   text-align: center;
+}
+
+textarea{
+  height: 90px;
+  display: flex;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 80%;
+}
+
+.botao{
+  justify-content: center;
+  margin: 0 auto 0 100px;
+}
+
+.centralizar-icon{
+  text-align: center;
+}
+
+.oferta{
+  margin-left: 48px;
+  font-size: 14px;
+}
+
+.anuncio{
+  margin-left: 48px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.col-md-4{
+  margin-top: 50px;
+}
+
+.chat{
+  text-align: center;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.text-chat{
+  border-bottom: inset;
+}
+.botao1{
+  margin-left: 33%;
 }

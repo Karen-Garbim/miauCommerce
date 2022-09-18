@@ -3,41 +3,49 @@
 {% block content %}
     <div class="form col-md-4 col-md-offset-3">
       <div class="header">
-        <h2>Criar um Anúncio</h2>
+        <h4>Criar um Anúncio</h4>
       </div>
       <form action="/anuncio/novo" method="post" id="form">
         <div class="form-group">
           <label for="nome">Titulo do anúncio</label>
-          <input type="text" id="nome" name="nome" placeholder="Digite o título do anúncio"/>
+          <input type="text" id="nome" name="nome" placeholder="Digite o título do anúncio" required/>
         </div>
         <div class="form-group">
-          <label for="descricao">Descrição</label>
-          <textarea type="text" id="descricao" name="descricao" placeholder="Digite uma descrição"/></textarea>
+          <div>
+            <label for="descricao">Descrição</label>
+          </div>
+          <div>
+            <textarea type="text" id="descricao" name="descricao" placeholder="Digite uma descrição"/></textarea>
+          </div>
         </div>
         <div class="form-group">
           <label for="qtde">Quantidade</label>
-          <input type="text" id="qtde" name="qtde" placeholder="Digite a quantidade" />
+          <input type="text" id="qtde" name="qtde" placeholder="Digite a quantidade" required/>
         </div>
         <div class="form-group">
           <label for="preco">Preço</label>
-          <input type="text" id="preco" name="preco" placeholder="Digite o valor" />
+          <input type="text" id="preco" name="preco" placeholder="Digite o valor" required/>
         </div>
         <div class="form-group">
-          <label for="categ_id">Categoria</label>
-          <select type="text" id="categ_id" name="categ_id" placeholder="Digite o ID da categoria" required>
-            <option value="">Selecione uma categoria</option>
-            {% for categoria in categorias %}
-              <option value="{{categoria.id}}">{{categoria.nome}}</option>
-            {% endfor %}
-          </select>
+          <div>
+            <label for="categ_id">Categoria</label>
+          </div>
+          <div>
+            <select type="text" id="categ_id" name="categ_id" placeholder="Digite o ID da categoria" required>
+              <option value="">Selecione uma categoria</option>
+              {% for categoria in categorias %}
+                <option value="{{categoria.id}}">{{categoria.nome}}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label for="anuncio_img">Imagem do anuncio</label>
+          <label for="anuncio_img">Imagem do anúncio</label>
           <input type="file" id="anuncio_img" name="anuncio_img" placeholder="Digite o ID do usuário" />
         </div>
-        <div>
-          <button type="submit" class="float-right btn btn-sm btn-success">Enviar</button>
-          <button type="reset" class="float-right btn btn-sm btn-warning">Limpar</button>
+        <div class="botao">
+          <button type="submit" class="float btn btn-sm btn-success">Anunciar</button>
+          <button type="reset" class="float btn btn-sm btn-warning">Limpar</button>
         </div>
       </form>
     </div>

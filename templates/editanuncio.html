@@ -3,7 +3,7 @@
 {% block content %}
     <div class="form">
       <div class="header">
-        <h2>Editar Anúncio</h2>
+        <h4>Editar Anúncio</h4>
       </div>
       <form action="/anuncio/editar/{{ anuncio.id }}" method="post" id="form">
         <div class="form-group">
@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
           <label for="preco">Preço</label>
-          <input type="text" id="preco" name="preco" placeholder="Digite o valor" value="{{anuncio.preco}}" />
+          <input type="text" id="preco" name="preco" placeholder="Digite o valor" value=" {{ "{:.2f}".format(anuncio.preco) }}" />
         </div>
         <div class="form-group">
           <label for="categ_id">Categoria</label>
@@ -34,16 +34,16 @@
             {% endfor %}
           </select>
         </div>
-        <div>  
+        <div class="oferta">  
             Anúncio em Oferta: <input type="checkbox" value="{{anuncio.status_oferta}}" {% if anuncio.status_oferta == True %} checked {% endif %} id="status_oferta" name="status_oferta" >
         </div>
         <p></p>
-        <div>
+        <div class="anuncio">
           Status Anúncio: <input type="checkbox" value="{{anuncio.status}}" {% if anuncio.status == True %} checked {% endif %} id="status" name="status"/>
         </div>
-        <div>
-          <button type="submit" class="float-right btn btn-sm btn-success">Enviar</button>
-          <button type="reset" class="float-right btn btn-sm btn-warning">Limpar</button>
+        <div class="botao">
+          <button type="submit" class="float btn btn-sm btn-success">Salvar</button>
+          <button type="reset" class="float btn btn-sm btn-warning">Limpar</button>
         </div>
       </form>
     </div>
